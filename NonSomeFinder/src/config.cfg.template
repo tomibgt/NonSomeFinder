@@ -1,0 +1,6 @@
+[authentication]
+ghusername = githubusername
+ghpassword = password for the github username
+
+[debug]
+verbose = False

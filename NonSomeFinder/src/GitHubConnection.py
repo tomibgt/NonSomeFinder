@@ -4,7 +4,7 @@ import NonSomeFinder
 from github import Github
 
 
-class GitHubConnection(object):
+class GitHubDao(object):
     def __init__(self, user, repo):
         self.gitHubUserName = user
         self.gitHubRepoName = repo

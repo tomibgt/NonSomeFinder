@@ -2,6 +2,7 @@ import datetime
 import time
 import NonSomeFinder
 from github import Github
+from github import GithubObject
 
 
 class GitHubDao(object):
@@ -17,4 +18,8 @@ class GitHubDao(object):
         for commit in commits:
             reva = reva + commit.commit.message+"\n"
         return reva
-    
+
+    def usesTwitter(self, projectName):
+        print "\n\n{{usesTwitter}}" #bgt debug
+        #return self.github.search_code('api%2Etwitter%2Ecom+in:file+repo:'+projectName, GithubObject.NotSet, GithubObject.NotSet)._isBiggerThan(0)
+        return self.github.search_code('twitter+in:file+repo:'+projectName, GithubObject.NotSet, GithubObject.NotSet)._isBiggerThan(0)

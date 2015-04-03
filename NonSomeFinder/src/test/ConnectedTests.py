@@ -7,16 +7,16 @@ Created on Nov 14, 2014
 import datetime
 import os
 import unittest
-from GitHubConnection import GitHubConnection
+from GitHubDao import GitHubDao
 
 
 class ConnectedTest(unittest.TestCase):
 
     def setUp(self):
-        self.connection = GitHubConnection(user="tomibgt", repo="GitHubResearchDataMiner")
+        self.gitDao = GitHubDao(user="tomibgt", repo="GitHubResearchDataMiner")
 
     def testGitHubConnection(self):
-        commits = self.connection.getCommitMessages()
+        commits = self.gitDao.getCommitMessages()
         validFlag = commits.count('\n') > 2
         self.assertTrue(validFlag, "Cannot draw commit logs from GitHub")
 

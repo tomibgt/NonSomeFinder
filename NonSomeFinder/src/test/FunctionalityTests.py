@@ -15,10 +15,10 @@ class FunctionalityTest(unittest.TestCase):
         self.gitDao = GitHubDao(user="tomibgt", repo="GitHubResearchDataMiner")
 
     def testPositiveTwitter(self):
-        self.assertTrue(self.gitDao.usesTwitter(self.positiveCase), self.positiveCase+" not detected as positive case.")
+        self.assertTrue(self.gitDao.usesTwitter(self.positiveCase)[0], self.positiveCase+" not detected as positive case.")
 
     def testNegativeTwitter(self):
-        self.assertFalse(self.gitDao.usesTwitter(self.positiveCase), self.negativeCase+" not detected as positive case.")
+        self.assertFalse(self.gitDao.usesTwitter(self.negativeCase)[0], self.negativeCase+" not detected as negative case.")
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

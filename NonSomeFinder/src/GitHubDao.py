@@ -12,6 +12,9 @@ class GitHubDao(object):
         self.gitHubRepoName = repo
         self.github = Github(NonSomeFinder.config.get('authentication', 'ghusername'), NonSomeFinder.config.get('authentication', 'ghpassword'))
 
+    def parseRepositoriesFromUrl(self, urlToParse):
+        return({"foo", "bar"})
+        
     def usesTwitter(self, projectName):
         """
         :Investigates if given project uses the twitter API.

@@ -28,9 +28,9 @@ class FunctionalityTest(unittest.TestCase):
     '''
     def testUrlParsing(self):
         result = self.gitDao.parseRepositoriesFromUrl(self.urlToParse);
-        self.assertTrue(result.count()==2, "The parser failed to detect two URLs on the test page.")
-        self.assertEqual(result[0], "sferik/twitter", "Missparsed sferik/twitter")
-        self.assertEqual(result[1], "tomibgt/GitHubResearchDataMiner", "Missparsed tomibgt/GitHubResearchDataMiner")
+        self.assertTrue(len(result)==2, "The parser failed to detect two URLs on the test page : "+str(len(result)))
+        self.assertEqual(result[0], "sferik/twitter", "Missparsed sferik/twitter : "+result[0])
+        self.assertEqual(result[1], "tomibgt/GitHubResearchDataMiner", "Missparsed tomibgt/GitHubResearchDataMiner : "+result[1])
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

@@ -1,5 +1,6 @@
 import datetime
 import time
+import urllib2
 import NonSomeFinder
 import github
 from github import Github
@@ -13,7 +14,23 @@ class GitHubDao(object):
         self.github = Github(NonSomeFinder.config.get('authentication', 'ghusername'), NonSomeFinder.config.get('authentication', 'ghpassword'))
 
     def parseRepositoriesFromUrl(self, urlToParse):
-        return({"foo", "bar"})
+        data = urllib2.urlopen(urlToParse).read()
+        reva = data.split('://github.com/')
+        i = 0;
+        while(i<len(reva)):
+            bit = reva[i]
+            j = 0
+            while(j<=len(bit) and bit[j] in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"):
+                j += 1
+            if(j+2>len(bit) or bit[j] != "/"):
+                del reva[i]
+            else:
+                j += 1
+                while(j<=len(bit) and bit[j] in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"):
+                    j += 1
+                reva[i] = reva[i][0:j]
+                i += 1
+        return reva
         
     def usesTwitter(self, projectName):
         """

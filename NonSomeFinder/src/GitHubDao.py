@@ -8,10 +8,12 @@ from github import GithubObject
 
 
 class GitHubDao(object):
-    def __init__(self, user, repo):
-        self.gitHubUserName = user
-        self.gitHubRepoName = repo
+    def __init__(self):
         self.github = Github(NonSomeFinder.config.get('authentication', 'ghusername'), NonSomeFinder.config.get('authentication', 'ghpassword'))
+
+    def findRepositoriesWithSearchPhrase(self, searchPhrase):
+        repos = self.github.search_repositories(searchPhrase)
+        return repos
 
     def parseRepositoriesFromUrl(self, urlToParse):
         data = urllib2.urlopen(urlToParse).read()

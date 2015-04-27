@@ -20,13 +20,13 @@ class GitHubDao(object):
         while(i<len(reva)):
             bit = reva[i]
             j = 0
-            while(j<=len(bit) and bit[j] in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"):
+            while(j<=len(bit) and bit[j] in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-"):
                 j += 1
             if(j+2>len(bit) or bit[j] != "/"):
                 del reva[i]
             else:
                 j += 1
-                while(j<=len(bit) and bit[j] in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"):
+                while(j<=len(bit) and bit[j] in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-"):
                     j += 1
                 reva[i] = reva[i][0:j]
                 i += 1

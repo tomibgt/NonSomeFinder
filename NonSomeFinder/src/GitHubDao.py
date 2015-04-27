@@ -1,6 +1,7 @@
 import datetime
 import time
 import urllib2
+import Analysis
 import NonSomeFinder
 import github
 from github import Github
@@ -33,6 +34,19 @@ class GitHubDao(object):
                 reva[i] = reva[i][0:j]
                 i += 1
         return reva
+    
+    """
+    :Investigates if given project uses the Facebook Graph API.
+    :param repository: :class:`github.Repository.Repository`
+    :rtype: :class:`Analysis.Analysis`
+    """
+    def usesFacebookGraph(self, repository):
+        qualifiers = {'in':'file', 'repo':repository.full_name}
+        result = self.github.search_code('graph.facebook.com', sort=GithubObject.NotSet, order=GithubObject.NotSet, **qualifiers)
+        analysis = Analysis.Analysis()
+        for item in result:
+            analysis.setPositive(item)
+        return analysis
         
     def usesTwitter(self, projectName):
         """

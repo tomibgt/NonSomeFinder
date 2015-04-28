@@ -20,12 +20,13 @@ def printHowToUse():
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         printHowToUse()
-        sys.exit()    
+        sys.exit()
     search = sys.argv[1]
     connection = GitHubDao.GitHubDao()
     csvDao = CsvDao.CsvDao()
     hits = connection.findRepositoriesWithSearchPhrase(search)
     for repo in hits:
+        print "Analysing repository "+repo.full_name
         analysis = connection.usesFacebookGraph(repo)
         csvDao.addRow(analysis)
     csvDao.close()

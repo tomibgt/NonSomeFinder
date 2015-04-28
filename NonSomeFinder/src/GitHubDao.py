@@ -1,10 +1,8 @@
-import datetime
-import sys
 import time
 import urllib2
 import Analysis
+import HelperFunctions
 import NonSomeFinder
-import github
 from github import Github
 from github import GithubObject
 
@@ -12,8 +10,20 @@ from github import GithubObject
 class GitHubDao(object):
     def __init__(self):
         self.github = Github(NonSomeFinder.config.get('authentication', 'ghusername'), NonSomeFinder.config.get('authentication', 'ghpassword'))
+        self.requestRateTimer = HelperFunctions.millitimestamp()
 
+    #This method is used to limit the rate of requests sent to GitHub
+    def __choke(self):
+        if NonSomeFinder.config.get('debug', 'verbose'):
+            print "Sleep? rate_limiting:"+str(self.github.rate_limiting[0])+" resettime:"+str(self.github.rate_limiting_resettime)+" currenttime:"+str(time.time())
+        if self.github.rate_limiting[0]<3:
+            naptime = self.github.rate_limiting_resettime-int(time.time())+1
+            if NonSomeFinder.config.get('debug', 'verbose'):
+                print "Sleeping "+str(naptime)+" seconds..."
+            time.sleep(naptime)
+        
     def findRepositoriesWithSearchPhrase(self, searchPhrase):
+        self.__choke()
         repos = self.github.search_repositories(searchPhrase)
         return repos
 
@@ -43,6 +53,7 @@ class GitHubDao(object):
     """
     def usesFacebookGraph(self, repository):
         qualifiers = {'in':'file', 'repo':repository.full_name}
+        self.__choke()
         result = self.github.search_code('"graph.facebook.com"', sort=GithubObject.NotSet, order=GithubObject.NotSet, **qualifiers)
         analysis = Analysis.Analysis(repository)
         for item in result:
@@ -56,6 +67,7 @@ class GitHubDao(object):
         :rtype: boolean True if the project uses API , :class:`github.PaginatedList.PaginatedList` of :class:`github.ContentFile.ContentFile` files that refer to the API
         """
         qualifiers = {'in':'file', 'repo':projectName}
+        self.__choke()
         result = self.github.search_code('api.twitter.com', sort=GithubObject.NotSet, order=GithubObject.NotSet, **qualifiers)
         positive = False
         for item in result:

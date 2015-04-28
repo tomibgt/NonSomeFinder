@@ -3,6 +3,10 @@ Created on Apr 27, 2015
 
 @author: bgt
 '''
+from github.Repository import Repository
+
+def getCsvHeaderRow():
+    return "true/false;project;fileURL"
 
 class Analysis(object):
     '''
@@ -13,12 +17,26 @@ class Analysis(object):
     second item of this object.
     '''
 
-    def __init__(self):
+    def __init__(self, repository):
         '''
         Constructor
         '''
-        
-    def getCsvHeaderRow(self):
-        return "true/false;fileURL"
+        self.positive        = False
+        self.projectName     = repository.full_name
+        self.confirmationUrl = ""
 
+    def getCsv(self):
+        reva = ""
+        if self.positive:
+            reva += "true;"
+        else:
+            reva += "false;"
+        reva += self.projectName+";"
+        reva += self.confirmationUrl
+        return reva
+                
+    def setPositive(self, indicatorFile):
+        self.positive        = True
+        self.confirmationUrl = indicatorFile.html_url
+        
     

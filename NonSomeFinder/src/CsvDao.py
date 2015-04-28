@@ -3,7 +3,7 @@ Created on Apr 27, 2015
 
 @author: bgt
 '''
-from Analysis import Analysis
+import Analysis
 
 class CsvDao(object):
     '''
@@ -11,14 +11,14 @@ class CsvDao(object):
     '''
 
 
-    def __init__(self, params):
+    def __init__(self):
         '''
         Constructor
         '''
         filepath = 'output.csv'
         self.outputFileHandle = open(filepath, 'w')
         self.started = False
-        self.outputFileHandle.write(self.getCsvHeaderRow())
+        self.outputFileHandle.write(Analysis.getCsvHeaderRow())
 
     def addRow(self, analysis):
         '''
@@ -37,43 +37,3 @@ class CsvDao(object):
         '''
         self.outputFileHandle.close()
 
-    def getCsvHeaderRow(self):
-        '''
-        Returns the header row for the output csv file
-        '''
-        return u"sha;commit date;committed file names;commit additions;commit deletions;commit changes;commit message"
-
-    def getCsvLineFromCommit(self, commit):
-        '''
-        Parses the given GitHub commit into a row for the csv file.
-        '''
-        commitcommit  = commit.commit
-        commitauthor  = commit.author
-        commitfiles   = ""
-        commitadds    = ""
-        commitdels    = ""
-        commitchanges = ""
-        comma        = False
-        try:
-            for afile in commit.files:
-                if(comma):
-                    commitfiles   = commitfiles+','
-                    commitadds    = commitadds+','
-                    commitdels    = commitdels+','
-                    commitchanges = commitchanges+','
-                commitfiles   = commitfiles+afile.filename
-                commitadds    = commitadds+str(afile.additions)
-                commitdels    = commitdels+str(afile.deletions)
-                commitchanges = commitchanges+str(afile.changes)
-                comma = True
-            if GitHubResearchDataMiner.config.get('debug', 'verbose'):
-                print "Read commit "+commit.sha+": "+commitcommit.message+";"+str(commitauthor)
-            reva = commit.sha+";"+str(commitauthor.created_at)+";"+commitfiles+";"+commitadds+";"+commitdels+";"+commitchanges+";"+commitcommit.message
-            reva = reva.replace('\n', ' ')
-        except AttributeError as detail:
-            print "Attribute Error for sha("+commit.sha+")", detail
-            return(None)
-            #raise
-            #AttributeErrors are ignored, because some commits have no committer, which causes these errors
-            #This means that some of the commits are dropped off
-        return reva

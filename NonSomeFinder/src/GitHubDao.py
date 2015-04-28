@@ -1,4 +1,5 @@
 import datetime
+import sys
 import time
 import urllib2
 import Analysis
@@ -42,8 +43,8 @@ class GitHubDao(object):
     """
     def usesFacebookGraph(self, repository):
         qualifiers = {'in':'file', 'repo':repository.full_name}
-        result = self.github.search_code('graph.facebook.com', sort=GithubObject.NotSet, order=GithubObject.NotSet, **qualifiers)
-        analysis = Analysis.Analysis()
+        result = self.github.search_code('"graph.facebook.com"', sort=GithubObject.NotSet, order=GithubObject.NotSet, **qualifiers)
+        analysis = Analysis.Analysis(repository)
         for item in result:
             analysis.setPositive(item)
         return analysis

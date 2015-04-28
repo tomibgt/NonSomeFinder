@@ -25,8 +25,10 @@ if __name__ == '__main__':
     connection = GitHubDao.GitHubDao()
     csvDao = CsvDao.CsvDao()
     hits = connection.findRepositoriesWithSearchPhrase(search)
+    countDooku = 0
     for repo in hits:
-        print "Analysing repository "+repo.full_name
+        countDooku += 1
+        print "Analysing repository #"+str(countDooku)+", "+repo.full_name
         analysis = connection.usesFacebookGraph(repo)
         csvDao.addRow(analysis)
     csvDao.close()

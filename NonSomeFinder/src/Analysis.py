@@ -6,7 +6,7 @@ Created on Apr 27, 2015
 from github.Repository import Repository
 
 def getCsvHeaderRow():
-    return "true/false;project;fileURL"
+    return "true/false;project;readmeURL;fileURL"
 
 class Analysis(object):
     '''
@@ -24,6 +24,7 @@ class Analysis(object):
         self.positive        = False
         self.projectName     = repository.full_name
         self.confirmationUrl = ""
+        self.readmeUrl       = ""
 
     def getCsv(self):
         reva = ""
@@ -32,11 +33,15 @@ class Analysis(object):
         else:
             reva += "false;"
         reva += self.projectName+";"
+        reva += self.readmeUrl+";"
         reva += self.confirmationUrl
         return reva
                 
     def setPositive(self, indicatorFile):
         self.positive        = True
         self.confirmationUrl = indicatorFile.html_url
+
+    def setReadmeFile(self, readmeFile):
+        self.readmeUrl   = readmeFile.html_url
         
     

@@ -18,7 +18,7 @@ class CsvDao(object):
         filepath = 'output.csv'
         self.outputFileHandle = open(filepath, 'w')
         self.started = False
-        self.outputFileHandle.write(Analysis.getCsvHeaderRow())
+        #self.outputFileHandle.write(Analysis.getCsvHeaderRow())
 
     def addRow(self, analysis):
         '''

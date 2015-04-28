@@ -54,8 +54,16 @@ class GitHubDao(object):
         self.__choke()
         result = self.github.search_code('"graph.facebook.com"', sort=GithubObject.NotSet, order=GithubObject.NotSet, **qualifiers)
         analysis = Analysis.Analysis(repository)
+        discovered = False
         for item in result:
             analysis.setPositive(item)
+            discovered = True
+        if discovered:
+            qualifiers = {'in':'path', 'repo':repository.full_name}
+            self.__choke()
+            result = self.github.search_code('README.md', sort=GithubObject.NotSet, order=GithubObject.NotSet, **qualifiers)
+            for item in result:
+                analysis.setReadmeFile(item)
         return analysis
         
     def usesTwitter(self, projectName):

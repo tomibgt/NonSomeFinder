@@ -1,7 +1,6 @@
 import time
 import urllib2
 import Analysis
-import HelperFunctions
 import NonSomeFinder
 from github import Github
 from github import GithubObject
@@ -10,7 +9,6 @@ from github import GithubObject
 class GitHubDao(object):
     def __init__(self):
         self.github = Github(NonSomeFinder.config.get('authentication', 'ghusername'), NonSomeFinder.config.get('authentication', 'ghpassword'))
-        self.requestRateTimer = HelperFunctions.millitimestamp()
 
     #This method is used to limit the rate of requests sent to GitHub
     def __choke(self):

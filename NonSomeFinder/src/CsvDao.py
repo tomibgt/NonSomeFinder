@@ -30,6 +30,7 @@ class CsvDao(object):
             self.started = True
         line = analysis.getCsv()+'\n'
         self.outputFileHandle.write(line.encode("utf-8"))
+        self.outputFileHandle.flush()
         
     def close(self):
         '''

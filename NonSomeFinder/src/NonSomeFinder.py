@@ -8,6 +8,7 @@ Copied from GitHubResearchDataMiner
 import ConfigParser
 import os
 import sys
+import time
 import CsvDao
 import GitHubDao
 
@@ -24,6 +25,7 @@ if __name__ == '__main__':
     search = sys.argv[1]
     connection = GitHubDao.GitHubDao()
     csvDao = CsvDao.CsvDao()
+    startTime = int(time.time())
     hits = connection.findRepositoriesWithSearchPhrase(search)
     countDooku = 0
     for repo in hits:
@@ -32,4 +34,6 @@ if __name__ == '__main__':
         analysis = connection.usesFacebookGraph(repo)
         csvDao.addRow(analysis)
     csvDao.close()
+    endTime = int(time.time())
+    print "Run time: "+str(endTime-startTime)+" seconds"
     

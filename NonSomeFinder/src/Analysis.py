@@ -3,10 +3,9 @@ Created on Apr 27, 2015
 
 @author: bgt
 '''
-from github.Repository import Repository
 
 def getCsvHeaderRow():
-    return "true/false;project;readmeURL;fileURL"
+    return "true/false;project;readme URL;hot file URL;project URL"
 
 class Analysis(object):
     '''
@@ -25,16 +24,18 @@ class Analysis(object):
         self.projectName     = repository.full_name
         self.confirmationUrl = ""
         self.readmeUrl       = ""
+        self.projectUrl      = repository.html_url
 
     def getCsv(self):
         reva = ""
         if self.positive:
-            reva += "true;"
+            reva += "true"
         else:
-            reva += "false;"
-        reva += self.projectName+";"
-        reva += self.readmeUrl+";"
-        reva += self.confirmationUrl
+            reva += "false"
+        reva += ";"+self.projectName
+        reva += ";"+self.readmeUrl
+        reva += ";"+self.confirmationUrl
+        reva += ";"+self.projectUrl
         return reva
                 
     def setPositive(self, indicatorFile):

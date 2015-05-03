@@ -3,6 +3,7 @@ import urllib2
 import Analysis
 import NonSomeFinder
 from github import Github
+from github import GithubException
 from github import GithubObject
 
 
@@ -54,6 +55,20 @@ class GitHubDao(object):
         self.__choke()
         result = self.github.search_code('"graph.facebook.com"', sort=GithubObject.NotSet, order=GithubObject.NotSet, **qualifiers)
         analysis = Analysis.Analysis(repository)
+        self.__choke()
+        try:
+            commits = repository.get_commits().reversed
+            #Apparently we have to get the count the hard way, as this list doesn't have a method to
+            #request the total count.
+            commitCount = 0
+            for commit in commits:
+                commitCount += 1
+            analysis.setCommitCount(commitCount)
+            analysis.setLastCommitDate(commits[0].author.date)
+        except GithubException:
+            pass
+        except:
+            pass
         discovered = False
         for item in result:
             analysis.setPositive(item)

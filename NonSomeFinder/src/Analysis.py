@@ -5,7 +5,7 @@ Created on Apr 27, 2015
 '''
 
 def getCsvHeaderRow():
-    return "true/false;project;readme URL;hot file URL;project URL"
+    return "true/false;project;created;commits;last commit;readme URL;hot file URL;project URL"
 
 class Analysis(object):
     '''
@@ -22,6 +22,9 @@ class Analysis(object):
         '''
         self.positive        = False
         self.projectName     = repository.full_name
+        self.createdAt       = str(repository.created_at.year)+"/"+str(repository.created_at.month)
+        self.lastCommitDate  = ""
+        self.commitCount     = "0"
         self.confirmationUrl = ""
         self.readmeUrl       = ""
         self.projectUrl      = repository.html_url
@@ -33,11 +36,20 @@ class Analysis(object):
         else:
             reva += "false"
         reva += ";"+self.projectName
+        reva += ";"+self.createdAt
+        reva += ";"+self.commitCount
+        reva += ";"+self.lastCommitDate
         reva += ";"+self.readmeUrl
         reva += ";"+self.confirmationUrl
         reva += ";"+self.projectUrl
         return reva
-                
+    
+    def setCommitCount(self, count):
+        self.commitCount = str(count)
+
+    def setLastCommitDate(self, theDate):
+        self.lastCommitDate = str(theDate.year)+"/"+str(theDate.month)
+                        
     def setPositive(self, indicatorFile):
         self.positive        = True
         self.confirmationUrl = indicatorFile.html_url

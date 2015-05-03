@@ -22,7 +22,7 @@ class Analysis(object):
         '''
         self.positive        = False
         self.projectName     = repository.full_name
-        self.createdAt       = str(repository.created_at.year)+"/"+str(repository.created_at.month)
+        self.createdAt       = str(repository.created_at.year)+":"+str(repository.created_at.month)+":"+str(repository.created_at.day)
         self.lastCommitDate  = ""
         self.commitCount     = "0"
         self.confirmationUrl = ""
@@ -48,7 +48,7 @@ class Analysis(object):
         self.commitCount = str(count)
 
     def setLastCommitDate(self, theDate):
-        self.lastCommitDate = str(theDate.year)+"/"+str(theDate.month)
+        self.lastCommitDate = str(theDate.year)+":"+str(theDate.month)+":"+str(theDate.day)
                         
     def setPositive(self, indicatorFile):
         self.positive        = True

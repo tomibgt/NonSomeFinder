@@ -16,10 +16,10 @@ config = ConfigParser.ConfigParser()
 config.readfp(open(os.path.dirname(__file__)+'/config.cfg'))
 
 def announceRunTimeFromSeconds(seconds):
-    remains = seconds
+    remains = int(seconds)
     actualSeconds = remains-60*int(remains/60) #remove full minutes and bigger
     remains -= actualSeconds
-    actualMinutes = int((remains-360*int(remains/360))/60) #remove full hours and covert seconds to minutes
+    actualMinutes = int((remains-3600*int(remains/3600))/60) #remove full hours and covert seconds to minutes
     remains -= actualMinutes*60
     actualHours   = int(remains/21600) #convert seconds to hours
     outputString = "Run time:"

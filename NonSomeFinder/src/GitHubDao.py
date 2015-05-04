@@ -65,7 +65,8 @@ class GitHubDao(object):
             for commit in commits:
                 commitCount += 1
             analysis.setCommitCount(commitCount)
-            analysis.setLastCommitDate(commits[0].author.date)
+            #pprint.pprint(vars(commits[0]))
+            analysis.setLastCommitDate(commits[0].date)
         except GithubException:
             pass
         except:

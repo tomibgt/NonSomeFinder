@@ -58,7 +58,7 @@ class GitHubDao(object):
         analysis = Analysis.Analysis(repository)
         self.__choke()
         try:
-            commits = repository.get_commits().reversed
+            commits = repository.get_commits()
             #Apparently we have to get the count the hard way, as this list doesn't have a method to
             #request the total count.
             #Same applies to fetching the last commit day

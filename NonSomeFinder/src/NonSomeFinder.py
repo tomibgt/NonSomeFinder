@@ -28,7 +28,7 @@ def announceRunTimeFromSeconds(seconds):
     if actualMinutes>0:
         outputString += " "+str(actualMinutes)+" minutes"
     if actualSeconds>0:
-        outputString += " "+str(actualSeconds)+" seconds ("+seconds+" total seconds)"
+        outputString += " "+str(actualSeconds)+" seconds ("+str(seconds)+" total seconds)"
     print outputString
     
 def printHowToUse():

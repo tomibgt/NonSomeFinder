@@ -4,6 +4,8 @@ Created on Apr 27, 2015
 @author: bgt
 '''
 
+import datetime
+
 def getCsvHeaderRow():
     return "true/false;project;created;commits;last commit;readme URL;hot file URL;project URL"
 
@@ -42,6 +44,14 @@ class Analysis(object):
         reva += ";"+self.readmeUrl
         reva += ";"+self.confirmationUrl
         reva += ";"+self.projectUrl
+        return reva
+    
+    def getCreatedAtDatetime(self):
+        reva = datetime.datetime.strptime(self.createdAt, "%Y:%m:%d")
+        return reva
+    
+    def getLastCommitDatetime(self):
+        reva = datetime.datetime.strptime(self.lastCommitDate, "%Y:%m:%d")
         return reva
     
     def setCommitCount(self, count):

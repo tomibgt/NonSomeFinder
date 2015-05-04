@@ -61,12 +61,16 @@ class GitHubDao(object):
             commits = repository.get_commits().reversed
             #Apparently we have to get the count the hard way, as this list doesn't have a method to
             #request the total count.
+            #Same applies to fetching the last commit day
             commitCount = 0
+            lastCommitDate = analysis.createdAt
             for commit in commits:
                 commitCount += 1
+                if analysis.lastCommitDate == "" or analysis.getLastCommitDatetime()<commit.date:
+                    analysis.setLastCommitDate(commit.date)
             analysis.setCommitCount(commitCount)
             #pprint.pprint(vars(commits[0]))
-            analysis.setLastCommitDate(commits[0].date)
+            #analysis.setLastCommitDate(commits[0].date)
         except GithubException:
             pass
         except:

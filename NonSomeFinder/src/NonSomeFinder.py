@@ -32,22 +32,39 @@ def announceRunTimeFromSeconds(seconds):
     print outputString
     
 def printHowToUse():
-    print "Usage: python NonSomeFinder.py searchword"
+    print "Usage: python NonSomeFinder.py [-ssl] [-issues] searchword"
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
+    search    = ""
+    searching = "facebook"
+    lookinto  = "reponame"
+    for argh in sys.argv:
+        if argh == sys.argv[0]:
+            pass
+        elif argh == "-ssl":
+            searching = "ssl"
+        elif argh == "-issues":
+            lookinto = "issues"
+        else:
+            search = argh
+    if search == "":
         printHowToUse()
         sys.exit()
-    search = sys.argv[1]
     connection = GitHubDao.GitHubDao()
     csvDao = CsvDao.CsvDao()
     startTime = int(time.time())
-    hits = connection.findRepositoriesWithSearchPhrase(search)
+    if lookinto == "reponame":
+        hits = connection.findRepositoryNamesWithSearchPhrase(search)
+    else:
+        hits = connection.findRepositoryIssuesWithSearchPhrase(search)
     countDooku = 0
     for repo in hits:
         countDooku += 1
         print "Analysing repository #"+str(countDooku)+", "+repo.full_name
-        analysis = connection.usesFacebookGraph(repo)
+        if searching == "facebook":
+            analysis = connection.usesFacebookGraph(repo)
+        else:
+            analysis = connection.usesSsl(repo)
         csvDao.addRow(analysis)
     csvDao.close()
     endTime = int(time.time())

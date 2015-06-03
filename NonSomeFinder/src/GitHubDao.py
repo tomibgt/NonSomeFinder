@@ -6,6 +6,7 @@ import NonSomeFinder
 from github import Github
 from github import GithubException
 from github import GithubObject
+from github.GithubObject import NotSet
 
 
 class GitHubDao(object):
@@ -22,7 +23,22 @@ class GitHubDao(object):
                 print "Sleeping "+str(naptime)+" seconds..."
             time.sleep(naptime)
         
-    def findRepositoriesWithSearchPhrase(self, searchPhrase):
+    def findRepositoryIssuesWithSearchPhrase(self, searchPhrase):
+        self.__choke()
+        issues = self.github.search_issues(searchPhrase, NotSet, NotSet)
+        repos = []
+        for issue in issues:
+            if NonSomeFinder.config.get('debug', 'verbose'):
+                print "Issue:"+issue.title+", repo:"+issue.repository.full_name
+            notFound = True
+            for repo in repos:
+                if repo == issue.repository:
+                    found = False
+            if notFound:
+                repos.append(issue.repository)
+        return repos
+
+    def findRepositoryNamesWithSearchPhrase(self, searchPhrase):
         self.__choke()
         repos = self.github.search_repositories(searchPhrase)
         return repos
@@ -87,6 +103,47 @@ class GitHubDao(object):
                 analysis.setReadmeFile(item)
         return analysis
         
+    """
+    :Investigates if given project uses the Facebook Graph API.
+    :param repository: :class:`github.Repository.Repository`
+    :rtype: :class:`Analysis.Analysis`
+    """
+    def usesSsl(self, repository):
+        qualifiers = {'in':'file', 'repo':repository.full_name}
+        self.__choke()
+        result = self.github.search_code('"javax.net.ssl"', sort=GithubObject.NotSet, order=GithubObject.NotSet, **qualifiers)
+        analysis = Analysis.Analysis(repository)
+        self.__choke()
+        try:
+            commits = repository.get_commits()
+            #Apparently we have to get the count the hard way, as this list doesn't have a method to
+            #request the total count.
+            #Same applies to fetching the last commit day
+            commitCount = 0
+            lastCommitDate = analysis.createdAt
+            for commit in commits:
+                commitCount += 1
+                if analysis.lastCommitDate == "" or analysis.getLastCommitDatetime()<commit.date:
+                    analysis.setLastCommitDate(commit.date)
+            analysis.setCommitCount(commitCount)
+            #pprint.pprint(vars(commits[0]))
+            #analysis.setLastCommitDate(commits[0].date)
+        except GithubException:
+            pass
+        except:
+            pass
+        discovered = False
+        for item in result:
+            analysis.setPositive(item)
+            discovered = True
+        if discovered:
+            qualifiers = {'in':'path', 'repo':repository.full_name}
+            self.__choke()
+            result = self.github.search_code('README.md', sort=GithubObject.NotSet, order=GithubObject.NotSet, **qualifiers)
+            for item in result:
+                analysis.setReadmeFile(item)
+        return analysis
+
     def usesTwitter(self, projectName):
         """
         :Investigates if given project uses the twitter API.

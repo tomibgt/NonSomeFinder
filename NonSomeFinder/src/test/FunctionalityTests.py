@@ -36,7 +36,7 @@ class FunctionalityTest(unittest.TestCase):
     Issue #3
     '''
     def testRepositorySearch(self):
-        result = self.gitDao.findRepositoriesWithSearchPhrase("pygithub")
+        result = self.gitDao.findRepositoryNamesWithSearchPhrase("pygithub")
         count = 0
         foo = False
         for repo in result:

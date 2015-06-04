@@ -29,7 +29,7 @@ class GitHubDao(object):
         repos = []
         for issue in issues:
             if NonSomeFinder.config.get('debug', 'verbose'):
-                print "Issue:"+issue.title+", repo:"+issue.repository.full_name
+                print "Issue:"+issue.title.encode('ascii', 'xmlcharrefreplace')+", repo:"+issue.repository.full_name.encode('ascii', 'xmlcharrefreplace')
             notFound = True
             for repo in repos:
                 if repo == issue.repository:

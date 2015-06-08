@@ -47,6 +47,7 @@ if __name__ == '__main__':
             lookinto = "issues"
         else:
             search = argh
+    print "Looking for "+search
     if search == "":
         printHowToUse()
         sys.exit()

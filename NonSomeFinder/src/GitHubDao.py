@@ -1,5 +1,4 @@
 import time
-import pprint
 import urllib2
 import Analysis
 import NonSomeFinder
@@ -22,6 +21,11 @@ class GitHubDao(object):
             if NonSomeFinder.config.get('debug', 'verbose'):
                 print "Sleeping "+str(naptime)+" seconds..."
             time.sleep(naptime)
+
+    def findAllRepositories(self):
+        self.__choke()
+        repos = self.github.get_repos()
+        return repos
         
     def findRepositoryIssuesWithSearchPhrase(self, searchPhrase):
         self.__choke()
@@ -85,8 +89,6 @@ class GitHubDao(object):
                 if analysis.lastCommitDate == "" or analysis.getLastCommitDatetime()<commit.date:
                     analysis.setLastCommitDate(commit.date)
             analysis.setCommitCount(commitCount)
-            #pprint.pprint(vars(commits[0]))
-            #analysis.setLastCommitDate(commits[0].date)
         except GithubException:
             pass
         except:
@@ -126,8 +128,6 @@ class GitHubDao(object):
                 if analysis.lastCommitDate == "" or analysis.getLastCommitDatetime()<commit.date:
                     analysis.setLastCommitDate(commit.date)
             analysis.setCommitCount(commitCount)
-            #pprint.pprint(vars(commits[0]))
-            #analysis.setLastCommitDate(commits[0].date)
         except GithubException:
             pass
         except:

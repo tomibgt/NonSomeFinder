@@ -15,6 +15,10 @@ import GitHubDao
 config = ConfigParser.ConfigParser()
 config.readfp(open(os.path.dirname(__file__)+'/config.cfg'))
 
+'''
+Given the duration of runtime as seconds, this method will print out the duration
+as hours, minutes and seconds.
+'''
 def announceRunTimeFromSeconds(seconds):
     remains = int(seconds)
     actualSeconds = remains-60*int(remains/60) #remove full minutes and bigger
@@ -32,15 +36,18 @@ def announceRunTimeFromSeconds(seconds):
     print outputString
     
 def printHowToUse():
-    print "Usage: python NonSomeFinder.py [-ssl] [-issues] searchword"
+    print "Usage: python NonSomeFinder.py [-ssl | -facebook] [-issues] searchword"
+    print "Usage: python NonSomeFinder.py -facebook"
 
 if __name__ == '__main__':
     search    = ""
-    searching = "facebook"
+    searching = ""
     lookinto  = "reponame"
     for argh in sys.argv:
         if argh == sys.argv[0]:
             pass
+        elif argh == "-facebook":
+            searching = "facebook"
         elif argh == "-ssl":
             searching = "ssl"
         elif argh == "-issues":
@@ -48,16 +55,20 @@ if __name__ == '__main__':
         else:
             search = argh
     print "Looking for "+search
-    if search == "":
+    if search == "" and searching != "facebook":
         printHowToUse()
         sys.exit()
     connection = GitHubDao.GitHubDao()
     csvDao = CsvDao.CsvDao()
     startTime = int(time.time())
-    if lookinto == "reponame":
+    
+    if search == "":
+        hits = connection.findAllRepositories()
+    elif lookinto == "reponame":
         hits = connection.findRepositoryNamesWithSearchPhrase(search)
     else:
         hits = connection.findRepositoryIssuesWithSearchPhrase(search)
+        
     countDooku = 0
     for repo in hits:
         countDooku += 1
@@ -68,6 +79,7 @@ if __name__ == '__main__':
             analysis = connection.usesSsl(repo)
         csvDao.addRow(analysis)
     csvDao.close()
+    
     endTime = int(time.time())
     announceRunTimeFromSeconds(endTime-startTime)
     

@@ -11,9 +11,25 @@ import sys
 import time
 import CsvDao
 import GitHubDao
+from github.GithubException import GithubException
 
 config = ConfigParser.ConfigParser()
 config.readfp(open(os.path.dirname(__file__)+'/config.cfg'))
+
+def analyseRepositories(hits):
+    countDooku = 0
+    for repo in hits:
+        countDooku += 1
+        print "Analysing repository #"+str(countDooku)+", "+repo.full_name
+        try:
+            if searching == "facebook":
+                analysis = connection.usesFacebookGraph(repo)
+            else:
+                analysis = connection.usesSsl(repo)
+            csvDao.addRow(analysis)
+        except GithubException:
+            print "...except that repository has blocked access"
+    csvDao.close()
 
 '''
 Given the duration of runtime as seconds, this method will print out the duration
@@ -68,17 +84,8 @@ if __name__ == '__main__':
         hits = connection.findRepositoryNamesWithSearchPhrase(search)
     else:
         hits = connection.findRepositoryIssuesWithSearchPhrase(search)
-        
-    countDooku = 0
-    for repo in hits:
-        countDooku += 1
-        print "Analysing repository #"+str(countDooku)+", "+repo.full_name
-        if searching == "facebook":
-            analysis = connection.usesFacebookGraph(repo)
-        else:
-            analysis = connection.usesSsl(repo)
-        csvDao.addRow(analysis)
-    csvDao.close()
+
+    analyseRepositories(hits)        
     
     endTime = int(time.time())
     announceRunTimeFromSeconds(endTime-startTime)

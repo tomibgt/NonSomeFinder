@@ -7,7 +7,7 @@ Created on Apr 27, 2015
 import datetime
 
 def getCsvHeaderRow():
-    return "true/false;project;created;commits;last commit;readme URL;hot file URL;project URL"
+    return "true/false;project;projectid;created;commits;last commit;readme URL;hot file URL;project URL"
 
 class Analysis(object):
     '''
@@ -30,6 +30,7 @@ class Analysis(object):
         self.confirmationUrl = ""
         self.readmeUrl       = ""
         self.projectUrl      = repository.html_url
+        self.id              = str(repository.id)
 
     def getCsv(self):
         reva = ""
@@ -38,6 +39,7 @@ class Analysis(object):
         else:
             reva += "false"
         reva += ";"+self.projectName
+        reva += ";"+self.id
         reva += ";"+self.createdAt
         reva += ";"+self.commitCount
         reva += ";"+self.lastCommitDate

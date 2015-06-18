@@ -53,23 +53,38 @@ def announceRunTimeFromSeconds(seconds):
     
 def printHowToUse():
     print "Usage: python NonSomeFinder.py [-ssl | -facebook] [-issues] searchword"
-    print "Usage: python NonSomeFinder.py -facebook"
+    print "Usage: python NonSomeFinder.py -facebook [-since #id]"
 
 if __name__ == '__main__':
     search    = ""
     searching = ""
     lookinto  = "reponame"
+    sinceid   = 0
+    sinceidflag = False
     for argh in sys.argv:
         if argh == sys.argv[0]:
             pass
+        elif sinceidflag:
+            sinceid = int(argh)
+            sinceidflag = False
         elif argh == "-facebook":
             searching = "facebook"
         elif argh == "-ssl":
             searching = "ssl"
         elif argh == "-issues":
             lookinto = "issues"
+        elif argh == "-since":
+            sinceidflag = True
+            if searching != "facebook":
+                print "Can only use '-since' with '-facebook'."
+                printHowToUse()
+                sys.exit()
         else:
             search = argh
+    if sinceidflag:
+        print "'-since' required the ID of the repository from which to start."
+        printHowToUse()
+        sys.exit()
     print "Looking for "+search
     if search == "" and searching != "facebook":
         printHowToUse()
@@ -79,7 +94,7 @@ if __name__ == '__main__':
     startTime = int(time.time())
     
     if search == "":
-        hits = connection.findAllRepositories()
+        hits = connection.findAllRepositories(sinceid)
     elif lookinto == "reponame":
         hits = connection.findRepositoryNamesWithSearchPhrase(search)
     else:

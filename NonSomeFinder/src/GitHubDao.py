@@ -22,9 +22,12 @@ class GitHubDao(object):
                 print "Sleeping "+str(naptime)+" seconds..."
             time.sleep(naptime)
 
-    def findAllRepositories(self):
+    def findAllRepositories(self, sinceid):
         self.__choke()
-        repos = self.github.get_repos()
+        if sinceid == 0:
+            repos = self.github.get_repos()
+        else:
+            repos = self.github.get_repos(sinceid)
         return repos
         
     def findRepositoryIssuesWithSearchPhrase(self, searchPhrase):

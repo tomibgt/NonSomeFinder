@@ -4,7 +4,9 @@ Created on Apr 1, 2015
 @author: bgt
 '''
 import unittest
+import github
 from GitHubDao import GitHubDao
+import NonSomeFinder
 
 class FunctionalityTest(unittest.TestCase):
 
@@ -43,9 +45,17 @@ class FunctionalityTest(unittest.TestCase):
             count += 1
             if repo.id == 3544490:
                 foo = True
-        self.assertGreaterEqual(count, 16, "There should be at least 16 repositories discovered with keyphrase 'pygithub'?")
+        self.assertGreaterEqual(count, 15, "There should be at least 15 repositories discovered with keyphrase 'pygithub'? Found "+str(count))
         self.assertTrue(foo, "Couldn't find the PyGithub/PyGithub project (id 3544490)")
-            
+
+    '''
+    Issue #5
+    '''
+    def testAnalysisOfBlockedRepository(self):
+        testrepo = self.gitDao.github.get_repo("bs/starling")
+        testlist = [testrepo]
+        NonSomeFinder.analyseRepositories(testlist)   
+
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

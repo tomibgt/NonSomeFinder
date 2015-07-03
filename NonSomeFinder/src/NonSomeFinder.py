@@ -52,8 +52,8 @@ def announceRunTimeFromSeconds(seconds):
     print outputString
     
 def printHowToUse():
-    print "Usage: python NonSomeFinder.py [-ssl | -facebook] [-issues] searchword"
-    print "Usage: python NonSomeFinder.py -facebook [-since #id]"
+    print "Usage: python NonSomeFinder.py [-ssl | -facebook] [-issues] [-delegate delegationfile1[,delegationfile2[...]] searchword"
+    print "Usage: python NonSomeFinder.py -facebook [-delegate delegationfile1[,delegationfile2[...]] [-since #id]"
 
 if __name__ == '__main__':
     search    = ""
@@ -61,12 +61,21 @@ if __name__ == '__main__':
     lookinto  = "reponame"
     sinceid   = 0
     sinceidflag = False
+    delegation = "none"
+    delegatepath = ""
+    delegateflag = False
     for argh in sys.argv:
         if argh == sys.argv[0]:
             pass
         elif sinceidflag:
             sinceid = int(argh)
             sinceidflag = False
+        elif delegateflag:
+            delegatepath = argh
+            delegateflag = False
+        elif argh == "-delegate":
+            delegateflag = True
+            delegation = "delegate"
         elif argh == "-facebook":
             searching = "facebook"
         elif argh == "-ssl":
@@ -79,6 +88,9 @@ if __name__ == '__main__':
                 print "Can only use '-since' with '-facebook'."
                 printHowToUse()
                 sys.exit()
+        elif argh == "-takeover":
+            delegateflag = True
+            delegation = "takeover"
         else:
             search = argh
     if sinceidflag:
@@ -93,14 +105,14 @@ if __name__ == '__main__':
     csvDao = CsvDao.CsvDao()
     startTime = int(time.time())
     
-    if search == "":
+    if search == "":             #We will either look through all repositories...
         hits = connection.findAllRepositories(sinceid)
-    elif lookinto == "reponame":
+    elif lookinto == "reponame": #...or seek by the names of the repositories...
         hits = connection.findRepositoryNamesWithSearchPhrase(search)
-    else:
+    else:                        #...or seek for repositories with keyword in issues.
         hits = connection.findRepositoryIssuesWithSearchPhrase(search)
 
-    analyseRepositories(hits)        
+    analyseRepositories(hits)    #The search result pipe is given as a parameter
     
     endTime = int(time.time())
     announceRunTimeFromSeconds(endTime-startTime)

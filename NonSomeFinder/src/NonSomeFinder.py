@@ -11,13 +11,16 @@ import sys
 import time
 import CsvDao
 import GitHubDao
+from GitHubFacadeForProcessDistibutionDao import GitHubFacadeForProcessDistibutionDao
 from github.GithubException import GithubException
+import ProcessDistributionDao
 
 config = ConfigParser.ConfigParser()
 config.readfp(open(os.path.dirname(__file__)+'/config.cfg'))
 
 def analyseRepositories(hits):
     countDooku = 0
+    
     for repo in hits:
         countDooku += 1
         print "Analysing repository #"+str(countDooku)+", "+repo.full_name
@@ -30,6 +33,11 @@ def analyseRepositories(hits):
         except GithubException:
             print "...except that repository has blocked access"
     csvDao.close()
+
+def delegateRepositories(hits, delegatepath):
+    minions = ProcessDistributionDao.ProcessDistributionDao(delegatepath, True)
+    for repo in hits:
+        minions.pushToDelegationFile(repo.full_name)
 
 '''
 Given the duration of runtime as seconds, this method will print out the duration
@@ -54,6 +62,7 @@ def announceRunTimeFromSeconds(seconds):
 def printHowToUse():
     print "Usage: python NonSomeFinder.py [-ssl | -facebook] [-issues] [-delegate delegationfile1[,delegationfile2[...]] searchword"
     print "Usage: python NonSomeFinder.py -facebook [-delegate delegationfile1[,delegationfile2[...]] [-since #id]"
+    print "Usage: python NonSomeFinder.py -ssl | -facebook -takeover delegationfile"
 
 if __name__ == '__main__':
     search    = ""
@@ -64,7 +73,7 @@ if __name__ == '__main__':
     delegation = "none"
     delegatepath = ""
     delegateflag = False
-    for argh in sys.argv:
+    for argh in sys.argv:       #Parse command line parameters
         if argh == sys.argv[0]:
             pass
         elif sinceidflag:
@@ -97,23 +106,28 @@ if __name__ == '__main__':
         print "'-since' required the ID of the repository from which to start."
         printHowToUse()
         sys.exit()
-    print "Looking for "+search
+    if search != "":
+        print "Looking for "+search
     if search == "" and searching != "facebook":
         printHowToUse()
         sys.exit()
     connection = GitHubDao.GitHubDao()
     csvDao = CsvDao.CsvDao()
     startTime = int(time.time())
-    
-    if search == "":             #We will either look through all repositories...
+    if delegation == "takeover":   #We will either analyse repositories from a delegation file...
+        hits = GitHubFacadeForProcessDistibutionDao(delegatepath, connection)
+    elif search == "":             #...or look through all repositories...
         hits = connection.findAllRepositories(sinceid)
-    elif lookinto == "reponame": #...or seek by the names of the repositories...
+    elif lookinto == "reponame":   #...or seek by the names of the repositories...
         hits = connection.findRepositoryNamesWithSearchPhrase(search)
-    else:                        #...or seek for repositories with keyword in issues.
+    else:                          #...or seek for repositories with keyword in issues.
         hits = connection.findRepositoryIssuesWithSearchPhrase(search)
 
-    analyseRepositories(hits)    #The search result pipe is given as a parameter
+    if delegation == "delegate":   #Delegate forth the analysing job 
+        delegateRepositories(hits, delegatepath)
+    else:                          #The search result pipe is given as a parameter
+        analyseRepositories(hits)
     
     endTime = int(time.time())
     announceRunTimeFromSeconds(endTime-startTime)
-    
+

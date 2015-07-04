@@ -49,6 +49,11 @@ class GitHubDao(object):
         self.__choke()
         repos = self.github.search_repositories(searchPhrase)
         return repos
+    
+    def getRepositoryByFullName(self, fullname):
+        self.__choke()
+        repo = self.github.get_repo(str(fullname), True)
+        return repo
 
     def parseRepositoriesFromUrl(self, urlToParse):
         data = urllib2.urlopen(urlToParse).read()

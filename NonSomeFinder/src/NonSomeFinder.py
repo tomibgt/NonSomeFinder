@@ -60,19 +60,23 @@ def announceRunTimeFromSeconds(seconds):
     print outputString
     
 def printHowToUse():
-    print "Usage: python NonSomeFinder.py [-ssl | -facebook] [-issues] [-delegate delegationfile1[,delegationfile2[...]] searchword"
-    print "Usage: python NonSomeFinder.py -facebook [-delegate delegationfile1[,delegationfile2[...]] [-since #id]"
-    print "Usage: python NonSomeFinder.py -ssl | -facebook -takeover delegationfile"
+    print "Usage: python NonSomeFinder.py [-ssl|-facebook] [-issues] -search searchword outputfile.csv"
+    print "Usage: python NonSomeFinder.py [-ssl|-facebook] [-issues] -search searchword [-delegate delegationfile1[,delegationfile2[...]]"
+    print "Usage: python NonSomeFinder.py -facebook [-since #id] outputfile.csv"
+    print "Usage: python NonSomeFinder.py -facebook [-since #id] [-delegate delegationfile1[,delegationfile2[...]]"
+    print "Usage: python NonSomeFinder.py -ssl|-facebook -takeover delegationfile outputfile.csv"
 
 if __name__ == '__main__':
-    search    = ""
-    searching = ""
-    lookinto  = "reponame"
-    sinceid   = 0
-    sinceidflag = False
-    delegation = "none"
-    delegatepath = ""
-    delegateflag = False
+    search         = ""
+    searchwordflag = False
+    searching      = ""
+    lookinto       = "reponame"
+    sinceid        = 0
+    sinceidflag    = False
+    delegation     = "none"
+    delegatepath   = ""
+    delegateflag   = False
+    outputfile     = ""
     for argh in sys.argv:       #Parse command line parameters
         if argh == sys.argv[0]:
             pass
@@ -82,6 +86,8 @@ if __name__ == '__main__':
         elif delegateflag:
             delegatepath = argh
             delegateflag = False
+        elif searchwordflag:
+            search = argh
         elif argh == "-delegate":
             delegateflag = True
             delegation = "delegate"
@@ -91,6 +97,8 @@ if __name__ == '__main__':
             searching = "ssl"
         elif argh == "-issues":
             lookinto = "issues"
+        elif argh == "-search":
+            searchwordflag = True
         elif argh == "-since":
             sinceidflag = True
             if searching != "facebook":
@@ -101,18 +109,26 @@ if __name__ == '__main__':
             delegateflag = True
             delegation = "takeover"
         else:
-            search = argh
+            outputfile = argh
+    #Validate the parameters
     if sinceidflag:
         print "'-since' required the ID of the repository from which to start."
         printHowToUse()
         sys.exit()
-    if search != "":
-        print "Looking for "+search
-    if search == "" and searching != "facebook":
+    if outputfile == "" and delegation != "delegate":
+        print "If you are not delegating the work, you must give the outputfile."
         printHowToUse()
         sys.exit()
+    if search == "" and searching != "facebook":
+        print "If you are not using -facebook, you must give searchword."
+        printHowToUse()
+        sys.exit()
+    #Ready to start working!
+    if search != "":
+        print "Looking for "+search
     connection = GitHubDao.GitHubDao()
-    csvDao = CsvDao.CsvDao()
+    if outputfile != "":
+        csvDao     = CsvDao.CsvDao(outputfile)
     startTime = int(time.time())
     if delegation == "takeover":   #We will either analyse repositories from a delegation file...
         hits = GitHubFacadeForProcessDistibutionDao(delegatepath, connection)

@@ -11,12 +11,11 @@ class CsvDao(object):
     '''
 
 
-    def __init__(self):
+    def __init__(self, outputpath):
         '''
         Constructor
         '''
-        filepath = 'output.csv'
-        self.outputFileHandle = open(filepath, 'w')
+        self.outputFileHandle = open(outputpath, 'w')
         self.started = False
         #self.outputFileHandle.write(Analysis.getCsvHeaderRow())
 

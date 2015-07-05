@@ -74,9 +74,15 @@ class ProcessDistributionDao(object):
         return fileRow 
 
     def pushToDelegationFile(self, fileRow):
-        #Discover the shortest queue
-        while self.getLengthOfDelegationFile(self.delegationFileIterator.current) > min(self.delegationFileRowCounts):
-            self.delegationFileIterator.next()
+        #Discover the shortest queue and wait for such to be shorter than 20 items
+        loopPassed = False
+        while not loopPassed:
+            while self.getLengthOfDelegationFile(self.delegationFileIterator.current) > min(self.delegationFileRowCounts):
+                self.delegationFileIterator.next()
+            if self.delegationFileRowCounts[self.delegationFileIterator.current] < 20:
+                loopPassed = True
+            else:
+                time.sleep(10.0)
         sleepLength = 0.1
         unstored = True
         handle = self.delegationFileHandles[self.delegationFileIterator.current]

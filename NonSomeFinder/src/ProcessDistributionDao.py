@@ -82,14 +82,11 @@ class ProcessDistributionDao(object):
         handle = self.delegationFileHandles[self.delegationFileIterator.current]
         while unstored: #Repeat until storing succeeds
             try:
-                print handle
                 fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 handle.write(fileRow+'\n')
                 handle.flush()
                 unstored = False
-                print "stored!"
             except IOError as e:
-                print "locked!"
                 if e.errno != errno.EAGAIN:
                     raise
             else:

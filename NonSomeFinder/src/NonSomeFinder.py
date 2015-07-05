@@ -37,7 +37,7 @@ def analyseRepositories(hits):
 def delegateRepositories(hits, delegatepath):
     minions = ProcessDistributionDao.ProcessDistributionDao(delegatepath, True)
     for repo in hits:
-        minions.pushToDelegationFile(repo.full_name)
+        minions.pushToDelegationFile(str(repo.full_name)+','+str(repo.id))
 
 '''
 Given the duration of runtime as seconds, this method will print out the duration

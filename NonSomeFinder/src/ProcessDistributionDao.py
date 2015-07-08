@@ -57,12 +57,16 @@ class ProcessDistributionDao(object):
             try:
                 fcntl.flock(self.delegationFileHandles[0], fcntl.LOCK_EX | fcntl.LOCK_NB)
                 fileRow = self.delegationFileHandles[0].readline()
+                if fileRow == "":
+                    time.sleep(5.0)
             except IOError as e:
                 if e.errno != errno.EAGAIN:
                     raise
-            else:
-                time.sleep(sleepLength)
-                sleepLength = sleepLength * 2.0
+                else:
+                    if NonSomeFinder.config.get('debug', 'verbose'):
+                        print "The delegation file was locked when trying to read."
+                    time.sleep(sleepLength)
+                    sleepLength = sleepLength * 2.0
         #remove the row just read
         handle = (open(self.delegationFileNames[0], 'r+'))
         handle.seek(0)
@@ -98,9 +102,11 @@ class ProcessDistributionDao(object):
             except IOError as e:
                 if e.errno != errno.EAGAIN:
                     raise
-            else:
-                time.sleep(sleepLength)
-                sleepLength = sleepLength * 2.0
+                else:
+                    if NonSomeFinder.config.get('debug', 'verbose'):
+                        print "Delegation file "+self.delegationFileNames[self.delegationFileIterator.current]+" locked."
+                    time.sleep(sleepLength)
+                    sleepLength = sleepLength * 2.0
         fcntl.flock(handle, fcntl.LOCK_UN)
     
 class DelegationFileIterator(object):

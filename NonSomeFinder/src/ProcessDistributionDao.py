@@ -6,6 +6,7 @@ Created on Jul 3, 2015
 import errno
 import fcntl
 import time
+import NonSomeFinder
 
 class ProcessDistributionDao(object):
     '''
@@ -82,6 +83,8 @@ class ProcessDistributionDao(object):
             if self.delegationFileRowCounts[self.delegationFileIterator.current] < 20:
                 loopPassed = True
             else:
+                if NonSomeFinder.config.get('debug', 'verbose'):
+                    print "All queues full: "+str(self.delegationFileRowCounts)+" Minimum queue size: "+str(min(self.delegationFileRowCounts))
                 time.sleep(10.0)
         sleepLength = 0.1
         unstored = True

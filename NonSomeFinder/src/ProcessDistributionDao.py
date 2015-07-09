@@ -45,6 +45,8 @@ class ProcessDistributionDao(object):
             for line in infp:
                 linecount += 1
         self.delegationFileRowCounts[idnumber] = linecount
+        if NonSomeFinder.config.get('debug', 'verbose'):
+            print "Counted "+str(linecount)+" lines in delegation file "+str(self.delegationFileNames[idnumber])
         return linecount
     
     def next(self):

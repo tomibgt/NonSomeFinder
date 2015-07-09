@@ -83,12 +83,13 @@ class ProcessDistributionDao(object):
     def pushToDelegationFile(self, fileRow):
         #Discover the shortest queue and wait for such to be shorter than 20 items
         loopPassed = False
-        while not loopPassed:
-            while self.getLengthOfDelegationFile(self.delegationFileIterator.current) > min(self.delegationFileRowCounts):
+        while not loopPassed: #Find a suitable delegation file:
+            self.delegationFileIterator.next() #By default, move to the next delegation file in the round robin...
+            while self.getLengthOfDelegationFile(self.delegationFileIterator.current) > min(self.delegationFileRowCounts): #and if there seems to be a shorter queue, find that one...
                 self.delegationFileIterator.next()
-            if self.delegationFileRowCounts[self.delegationFileIterator.current] < 20:
+            if self.delegationFileRowCounts[self.delegationFileIterator.current] < 20: #yet, if even the shortest queue already has 20 items...
                 loopPassed = True
-            else:
+            else: #wait a while and try again
                 if NonSomeFinder.config.get('debug', 'verbose'):
                     print "All queues full: "+str(self.delegationFileRowCounts)+" Minimum queue size: "+str(min(self.delegationFileRowCounts))
                 time.sleep(10.0)

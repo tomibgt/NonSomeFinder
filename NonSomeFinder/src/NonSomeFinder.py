@@ -23,8 +23,8 @@ def analyseRepositories(hits):
     
     for repo in hits:
         countDooku += 1
-        print "Analysing repository #"+str(countDooku)+", "+repo.full_name+" "+str(repo.id)
         try:
+            print "Analysing repository #"+str(countDooku)+", "+repo.full_name+" "+str(repo.id)
             if searching == "facebook":
                 analysis = connection.usesFacebookGraph(repo)
             else:

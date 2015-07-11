@@ -60,6 +60,7 @@ class ProcessDistributionDao(object):
                 fcntl.flock(self.delegationFileHandles[0], fcntl.LOCK_EX | fcntl.LOCK_NB)
                 fileRow = self.delegationFileHandles[0].readline()
                 if fileRow == "":
+                    fcntl.flock(self.delegationFileHandles[0], fcntl.LOCK_UN)
                     time.sleep(5.0)
             except IOError as e:
                 if e.errno != errno.EAGAIN:
@@ -69,15 +70,20 @@ class ProcessDistributionDao(object):
                         print "The delegation file was locked when trying to read."
                     time.sleep(sleepLength)
                     sleepLength = sleepLength * 2.0
-        #remove the row just read
-        handle = (open(self.delegationFileNames[0], 'r+'))
-        handle.seek(0)
-        for segment in iter(lambda: self.delegationFileHandles[0].read(2), ''):
-            handle.write(segment)
-        handle.truncate()
-        handle.flush()
+        if fileRow != '---EOF---':
+            #remove the row just read
+            handle = (open(self.delegationFileNames[0], 'r+'))
+            handle.seek(0)
+            for segment in iter(lambda: self.delegationFileHandles[0].read(2), ''):
+                handle.write(segment)
+            handle.truncate()
+            handle.flush()
+        else:
+            fileRow = ''
         self.delegationFileHandles[0].seek(0)
         fcntl.flock(self.delegationFileHandles[0], fcntl.LOCK_UN)
+        if fileRow == '':
+            raise StopIteration
         return fileRow 
 
     def pushToDelegationFile(self, fileRow):
@@ -111,6 +117,33 @@ class ProcessDistributionDao(object):
                     time.sleep(sleepLength)
                     sleepLength = sleepLength * 2.0
         fcntl.flock(handle, fcntl.LOCK_UN)
+
+    '''
+    Place a marker on the delegation files marking that there will no longer be entries and close them.
+    Merely facing an empty delegation file does not suffice for a takeover script, as the delegator may
+    only be too slow to fill in the queues, in which case the takeover scripts only need to wait for
+    more work to appear.
+    '''
+    def sealDelegationFiles(self):
+        for handle in self.delegationFileHandles:
+            unsealed = True
+            sleepLength = 0.1
+            while unsealed: #Repeat until storing succeeds
+                try:
+                    fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    handle.write('---EOF---\n')
+                    handle.flush()
+                    unsealed = False
+                except IOError as e:
+                    if e.errno != errno.EAGAIN:
+                        raise
+                    else:
+                        if NonSomeFinder.config.get('debug', 'verbose'):
+                            print "Delegation file "+self.delegationFileNames[self.delegationFileIterator.current]+" locked."
+                        time.sleep(sleepLength)
+                        sleepLength = sleepLength * 2.0
+                fcntl.flock(handle, fcntl.LOCK_UN)
+            handle.close()
     
 class DelegationFileIterator(object):
 

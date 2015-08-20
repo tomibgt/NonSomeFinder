@@ -14,9 +14,8 @@ import GitHubDao
 from GitHubFacadeForProcessDistibutionDao import GitHubFacadeForProcessDistibutionDao
 from github.GithubException import GithubException
 import ProcessDistributionDao
-
-config = ConfigParser.ConfigParser()
-config.readfp(open(os.path.dirname(__file__)+'/config.cfg'))
+from BgtConfiguration import BgtConfiguration
+from BgtConfiguration import BadCommandLineException
 
 def analyseRepositories(hits):
     countDooku = 0
@@ -25,7 +24,7 @@ def analyseRepositories(hits):
         countDooku += 1
         try:
             print "Analysing repository #"+str(countDooku)+", "+repo.full_name+" "+str(repo.id)
-            if searching == "facebook":
+            if config.searching == "facebook":
                 analysis = connection.usesFacebookGraph(repo)
             else:
                 analysis = connection.usesSsl(repo)
@@ -67,83 +66,35 @@ def printHowToUse():
     print "Usage: python NonSomeFinder.py -ssl|-facebook -takeover delegationfile outputfile.csv"
 
 if __name__ == '__main__':
-    search         = ""
-    searchwordflag = False
-    searching      = ""
-    lookinto       = "reponame"
-    sinceid        = 0
-    sinceidflag    = False
-    delegation     = "none"
-    delegatepath   = ""
-    delegateflag   = False
-    outputfile     = ""
-    for argh in sys.argv:       #Parse command line parameters
-        if argh == sys.argv[0]:
-            pass
-        elif sinceidflag:
-            sinceid = int(argh)
-            sinceidflag = False
-        elif delegateflag:
-            delegatepath = argh
-            delegateflag = False
-        elif searchwordflag:
-            search = argh
-        elif argh == "-delegate":
-            delegateflag = True
-            delegation = "delegate"
-        elif argh == "-facebook":
-            searching = "facebook"
-        elif argh == "-ssl":
-            searching = "ssl"
-        elif argh == "-issues":
-            lookinto = "issues"
-        elif argh == "-search":
-            searchwordflag = True
-        elif argh == "-since":
-            sinceidflag = True
-            if searching != "facebook":
-                print "Can only use '-since' with '-facebook'."
-                printHowToUse()
-                sys.exit()
-        elif argh == "-takeover":
-            delegateflag = True
-            delegation = "takeover"
-        else:
-            outputfile = argh
-    #Validate the parameters
-    if sinceidflag:
-        print "'-since' required the ID of the repository from which to start."
+    config = BgtConfiguration()
+    try:
+        config.readConfigfile(os.path.dirname(__file__)+'/config.cfg')
+        config.parseCommandLine(sys.argv)
+    except BadCommandLineException as e:
+        print e.message
         printHowToUse()
         sys.exit()
-    if outputfile == "" and delegation != "delegate":
-        print "If you are not delegating the work, you must give the outputfile."
-        printHowToUse()
-        sys.exit()
-    if search == "" and searching != "facebook":
-        print "If you are not using -facebook, you must give searchword."
-        printHowToUse()
-        sys.exit()
-    #Ready to start working!
-    if search != "":
-        print "Looking for "+search
-    connection = GitHubDao.GitHubDao()
-    if outputfile != "":
-        csvDao     = CsvDao.CsvDao(outputfile)
-    startTime = int(time.time())
-    if delegation == "takeover":   #We will either analyse repositories from a delegation file...
-        hits = GitHubFacadeForProcessDistibutionDao(delegatepath, connection)
-    elif search == "":             #...or look through all repositories...
-        hits = connection.findAllRepositories(sinceid)
-    elif lookinto == "reponame":   #...or seek by the names of the repositories...
-        hits = connection.findRepositoryNamesWithSearchPhrase(search)
-    else:                          #...or seek for repositories with keyword in issues.
-        hits = connection.findRepositoryIssuesWithSearchPhrase(search)
 
-    if delegation == "delegate":   #Delegate forth the analysing job 
-        delegateRepositories(hits, delegatepath)
+    #Ready to start working!
+    if config.search != "":
+        print "Looking for "+config.search
+    connection = GitHubDao.GitHubDao()
+    if config.outputfile != "":
+        csvDao     = CsvDao.CsvDao(config.outputfile)
+    startTime = int(time.time())
+    if config.delegation == "takeover":   #We will either analyse repositories from a delegation file...
+        hits = GitHubFacadeForProcessDistibutionDao(config.delegatepath, connection)
+    elif config.search == "":             #...or look through all repositories...
+        hits = connection.findAllRepositories(config.sinceid)
+    elif config.lookinto == "reponame":   #...or seek by the names of the repositories...
+        hits = connection.findRepositoryNamesWithSearchPhrase(config.search)
+    else:                          #...or seek for repositories with keyword in issues.
+        hits = connection.findRepositoryIssuesWithSearchPhrase(config.search)
+
+    if config.delegation == "delegate":   #Delegate forth the analysing job 
+        delegateRepositories(hits, config.delegatepath)
     else:                          #The search result pipe is given as a parameter
         analyseRepositories(hits)
     
     endTime = int(time.time())
     announceRunTimeFromSeconds(endTime-startTime)
-

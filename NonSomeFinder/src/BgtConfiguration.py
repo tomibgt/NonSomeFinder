@@ -42,6 +42,7 @@ class BgtConfiguration(object):
                 delegateflag = False
             elif searchwordflag:
                 self.search = argh
+                searchwordflag = False
             elif argh == "-delegate":
                 delegateflag = True
                 self.delegation = "delegate"
@@ -61,7 +62,7 @@ class BgtConfiguration(object):
                 delegateflag = True
                 self.delegation = "takeover"
             else:
-                outputfile = argh
+                self.outputfile = argh
         #Validate the parameters
         if sinceidflag:
             raise BadCommandLineException("'-since' required the ID of the repository from which to start.")

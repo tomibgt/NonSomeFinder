@@ -33,8 +33,8 @@ def analyseRepositories(hits):
             print "...except that repository has blocked access"
     csvDao.close()
 
-def delegateRepositories(hits, delegatepath):
-    minions = ProcessDistributionDao.ProcessDistributionDao(delegatepath, True)
+def delegateRepositories(config, hits):
+    minions = ProcessDistributionDao.ProcessDistributionDao(config, True)
     for repo in hits:
         minions.pushToDelegationFile(str(repo.full_name)+','+str(repo.id))
 
@@ -92,7 +92,7 @@ if __name__ == '__main__':
         hits = connection.findRepositoryIssuesWithSearchPhrase(config.search)
 
     if config.delegation == "delegate":   #Delegate forth the analysing job 
-        delegateRepositories(hits, config.delegatepath)
+        delegateRepositories(config, hits)
     else:                          #The search result pipe is given as a parameter
         analyseRepositories(hits)
     

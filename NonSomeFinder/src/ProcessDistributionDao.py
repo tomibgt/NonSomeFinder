@@ -14,11 +14,12 @@ class ProcessDistributionDao(object):
     '''
 
 
-    def __init__(self, delegationfiles, delegator=True):
+    def __init__(self, config, delegator=True):
         '''
         Constructor
         '''
-        self.delegationFileNames = delegationfiles.split(',')
+        self.config = config
+        self.delegationFileNames = self.config.delegatepath.split(',')
         self.delegationFileHandles = []
         self.delegationFileRowCounts = []
         self.delegationFileIterator = DelegationFileIterator(len(self.delegationFileNames))
@@ -45,7 +46,7 @@ class ProcessDistributionDao(object):
             for line in infp:
                 linecount += 1
         self.delegationFileRowCounts[idnumber] = linecount
-        if NonSomeFinder.config.get('debug', 'verbose'):
+        if self.config.get('debug', 'verbose'):
             print "Counted "+str(linecount)+" lines in delegation file "+str(self.delegationFileNames[idnumber])
         return linecount
     
@@ -66,7 +67,7 @@ class ProcessDistributionDao(object):
                 if e.errno != errno.EAGAIN:
                     raise
                 else:
-                    if NonSomeFinder.config.get('debug', 'verbose'):
+                    if self.config.get('debug', 'verbose'):
                         print "The delegation file was locked when trying to read."
                     time.sleep(sleepLength)
                     sleepLength = sleepLength * 2.0
@@ -96,7 +97,7 @@ class ProcessDistributionDao(object):
             if self.delegationFileRowCounts[self.delegationFileIterator.current] < 20: #yet, if even the shortest queue already has 20 items...
                 loopPassed = True
             else: #wait a while and try again
-                if NonSomeFinder.config.get('debug', 'verbose'):
+                if self.config.get('debug', 'verbose'):
                     print "All queues full: "+str(self.delegationFileRowCounts)+" Minimum queue size: "+str(min(self.delegationFileRowCounts))
                 time.sleep(10.0)
         sleepLength = 0.1
@@ -112,7 +113,7 @@ class ProcessDistributionDao(object):
                 if e.errno != errno.EAGAIN:
                     raise
                 else:
-                    if NonSomeFinder.config.get('debug', 'verbose'):
+                    if self.config.get('debug', 'verbose'):
                         print "Delegation file "+self.delegationFileNames[self.delegationFileIterator.current]+" locked."
                     time.sleep(sleepLength)
                     sleepLength = sleepLength * 2.0
@@ -138,7 +139,7 @@ class ProcessDistributionDao(object):
                     if e.errno != errno.EAGAIN:
                         raise
                     else:
-                        if NonSomeFinder.config.get('debug', 'verbose'):
+                        if self.config.get('debug', 'verbose'):
                             print "Delegation file "+self.delegationFileNames[self.delegationFileIterator.current]+" locked."
                         time.sleep(sleepLength)
                         sleepLength = sleepLength * 2.0

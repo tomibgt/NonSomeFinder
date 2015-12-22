@@ -78,7 +78,7 @@ if __name__ == '__main__':
     #Ready to start working!
     if config.search != "":
         print "Looking for "+config.search
-    connection = GitHubDao.GitHubDao()
+    connection = GitHubDao.GitHubDao(config)
     if config.outputfile != "":
         csvDao     = CsvDao.CsvDao(config.outputfile)
     startTime = int(time.time())

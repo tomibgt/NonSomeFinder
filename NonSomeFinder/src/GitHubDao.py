@@ -9,8 +9,8 @@ from github.GithubObject import NotSet
 
 
 class GitHubDao(object):
-    def __init__(self):
-        self.github = Github(NonSomeFinder.config.get('authentication', 'ghusername'), NonSomeFinder.config.get('authentication', 'ghpassword'))
+    def __init__(self, config):
+        self.github = Github(config.get('authentication', 'ghusername'), config.get('authentication', 'ghpassword'))
 
     #This method is used to limit the rate of requests sent to GitHub
     def __choke(self):

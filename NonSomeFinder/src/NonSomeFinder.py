@@ -33,8 +33,8 @@ def analyseRepositories(hits):
             print "...except that repository has blocked access"
     csvDao.close()
 
-def delegateRepositories(hits, delegatepath):
-    minions = ProcessDistributionDao.ProcessDistributionDao(delegatepath, True)
+def delegateRepositories(config, hits):
+    minions = ProcessDistributionDao.ProcessDistributionDao(config, True)
     for repo in hits:
         minions.pushToDelegationFile(str(repo.full_name)+','+str(repo.id))
 
@@ -78,12 +78,12 @@ if __name__ == '__main__':
     #Ready to start working!
     if config.search != "":
         print "Looking for "+config.search
-    connection = GitHubDao.GitHubDao()
+    connection = GitHubDao.GitHubDao(config)
     if config.outputfile != "":
         csvDao     = CsvDao.CsvDao(config.outputfile)
     startTime = int(time.time())
     if config.delegation == "takeover":   #We will either analyse repositories from a delegation file...
-        hits = GitHubFacadeForProcessDistibutionDao(config.delegatepath, connection)
+        hits = GitHubFacadeForProcessDistibutionDao(config, connection)
     elif config.search == "":             #...or look through all repositories...
         hits = connection.findAllRepositories(config.sinceid)
     elif config.lookinto == "reponame":   #...or seek by the names of the repositories...
@@ -92,7 +92,7 @@ if __name__ == '__main__':
         hits = connection.findRepositoryIssuesWithSearchPhrase(config.search)
 
     if config.delegation == "delegate":   #Delegate forth the analysing job 
-        delegateRepositories(hits, config.delegatepath)
+        delegateRepositories(config, hits)
     else:                          #The search result pipe is given as a parameter
         analyseRepositories(hits)
     

@@ -9,16 +9,17 @@ from github.GithubObject import NotSet
 
 
 class GitHubDao(object):
-    def __init__(self):
-        self.github = Github(NonSomeFinder.config.get('authentication', 'ghusername'), NonSomeFinder.config.get('authentication', 'ghpassword'))
+    def __init__(self, config):
+        self.config = config
+        self.github = Github(self.config.get('authentication', 'ghusername'), self.config.get('authentication', 'ghpassword'))
 
     #This method is used to limit the rate of requests sent to GitHub
     def __choke(self):
-        if NonSomeFinder.config.get('debug', 'verbose'):
+        if self.config.get('debug', 'verbose'):
             print "Sleep? rate_limiting:"+str(self.github.rate_limiting[0])+" resettime:"+str(self.github.rate_limiting_resettime)+" currenttime:"+str(time.time())
         if self.github.rate_limiting[0]<3:
             naptime = self.github.rate_limiting_resettime-int(time.time())+1
-            if NonSomeFinder.config.get('debug', 'verbose'):
+            if self.config.get('debug', 'verbose'):
                 print "Sleeping "+str(naptime)+" seconds..."
             time.sleep(naptime)
 
@@ -35,7 +36,7 @@ class GitHubDao(object):
         issues = self.github.search_issues(searchPhrase, NotSet, NotSet)
         repos = []
         for issue in issues:
-            if NonSomeFinder.config.get('debug', 'verbose'):
+            if self.config.get('debug', 'verbose'):
                 print "Issue:"+issue.title.encode('ascii', 'xmlcharrefreplace')+", repo:"+issue.repository.full_name.encode('ascii', 'xmlcharrefreplace')
             notFound = True
             for repo in repos:
